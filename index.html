@@ -8,10 +8,6 @@
 <meta property="og:title" content="Wedding Invitation: Pragnya & Aneesh">
 <meta property="og:description" content="We invite you to celebrate our special day with us. Tap to open our musical invitation.">
 <meta property="og:image" content="https://pragnya98.github.io/pragnya-aneesh-wedding/Pg0.png">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="1576">
-<meta property="og:image:height" content="2319">
-<meta property="og:url" content="https://pragnya98.github.io/pragnya-aneesh-wedding/">
 <meta property="og:type" content="website">
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -32,12 +28,12 @@ body {
 
 /* --- Card Container --- */
 #card-container {
-  width: 100vw;
-  height: 100vh;
-  max-width: 450px;
+  width: 100vw;          
+  height: 100vh;         
+  max-width: 450px;      
   position: relative;
   perspective: 1500px;
-  opacity: 0;
+  opacity: 0; 
   pointer-events: none;
   transition: opacity 0.5s ease-in;
 }
@@ -62,32 +58,31 @@ body {
 
 .flipped { transform: rotateY(-180deg); }
 
-/* =============================
-   BOTTOM-RIGHT ARROW INDICATOR
-   ============================= */
-.arrow-hint {
-  position: absolute;
-  bottom: 22px;
-  right: 22px;
-  width: 0;
-  height: 0;
-  border-left: 12px solid transparent;
-  border-top: 12px solid white;   /* arrow color */
-  opacity: 0.9;
-  transform: rotate(45deg);
-  animation: arrowBounce 1.2s infinite ease-in-out;
-  transition: opacity 0.6s ease-out;
-  z-index: 20;
+/* --- Arrow Animation --- */
+.center-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem; /* Large size */
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    pointer-events: none; /* Allows click to pass through */
+    opacity: 0; /* Hidden by default */
+    z-index: 50;
 }
 
-@keyframes arrowBounce {
-  0%   { transform: translateY(0) rotate(45deg); }
-  50%  { transform: translateY(-6px) rotate(45deg); }
-  100% { transform: translateY(0) rotate(45deg); }
+/* The class we add with JS to trigger the animation */
+.run-hint-animation {
+    animation: hintFade 3s ease-in-out forwards;
 }
 
-.fade-out {
-  opacity: 0 !important;
+@keyframes hintFade {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    40% { transform: translate(-50%, -50%) scale(1); }
+    70% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
 }
 
 /* Flower Animations */
@@ -141,13 +136,13 @@ body {
 </div>
 
 <div id="card-container">
-
+  
   <div id="page-1" class="page">
-    <div class="arrow-hint" id="arrow-1"></div>
+    <div id="hint-1" class="center-hint">➜</div>
   </div>
 
   <div id="page-2" class="page">
-    <div class="arrow-hint" id="arrow-2"></div>
+     <div id="hint-2" class="center-hint">➜</div>
   </div>
 
   <div id="page-3" class="page"></div>
@@ -164,6 +159,7 @@ const cardContainer = document.getElementById("card-container");
 const shehnaiAudio = document.getElementById("shehnai");
 
 async function startApp() {
+  // Play Audio
   if (shehnaiAudio) {
     try {
       shehnaiAudio.volume = 0.6;
@@ -177,11 +173,16 @@ async function startApp() {
     await Tone.start();
   }
 
+  // Hide Start Screen
   startScreen.style.opacity = 0;
   setTimeout(() => {
     startScreen.style.display = "none";
     cardContainer.style.opacity = 1;
     cardContainer.style.pointerEvents = "auto";
+    
+    // TRIGGER PAGE 1 HINT NOW
+    document.getElementById("hint-1").classList.add("run-hint-animation");
+    
   }, 500);
 
   startFlowers();
@@ -189,7 +190,17 @@ async function startApp() {
 
 function flipPage() {
   if (currentPage >= pages.length) return;
+  
   document.getElementById(pages[currentPage]).classList.add("flipped");
+  
+  // TRIGGER PAGE 2 HINT (Only when flipping from Page 1 to 2)
+  if (currentPage === 0) {
+      // Wait 600ms for page flip animation to settle, then show hint
+      setTimeout(() => {
+          document.getElementById("hint-2").classList.add("run-hint-animation");
+      }, 600);
+  }
+
   currentPage++;
 }
 
@@ -212,12 +223,6 @@ window.onload = () => {
   document.getElementById("page-1").style.backgroundImage = "url('Pg1.png')";
   document.getElementById("page-2").style.backgroundImage = "url('Pg2.png')";
   document.getElementById("page-3").style.backgroundImage = "url('Pg3.png')";
-
-  // Fade arrow after 3 seconds
-  setTimeout(() => {
-    document.getElementById("arrow-1").classList.add("fade-out");
-    document.getElementById("arrow-2").classList.add("fade-out");
-  }, 3000);
 };
 </script>
 </body>

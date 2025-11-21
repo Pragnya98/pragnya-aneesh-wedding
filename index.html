@@ -9,9 +9,12 @@
 
 <meta property="og:description" content="We invite you to celebrate our special day with us. Tap to open our musical invitation.">
 
-<meta property="og:image" content="Pg1.png">
+<meta property="og:image" content="https://pragnya98.github.io/pragnya-aneesh-wedding/Pg1.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200"> 
+<meta property="og:image:height" content="630">
 
-<meta property="og:url" content="https://github.com">
+<meta property="og:url" content="https://pragnya98.github.io/pragnya-aneesh-wedding/">
 <meta property="og:type" content="website">
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -31,7 +34,7 @@
     margin: 0;
   }
 
-  /* Card Container & Perspective */
+  /* Card Container */
   #card-container {
     width: 90vw;
     max-width: 400px;
@@ -54,20 +57,16 @@
     transform-style: preserve-3d;
     transform-origin: left center;
     transition: transform 1s ease;
-    backface-visibility: hidden; /* Hides the back when flipped */
+    backface-visibility: hidden;
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   }
 
-  /* Page Layering */
   #page-1 { z-index: 3; }
   #page-2 { z-index: 2; }
   #page-3 { z-index: 1; }
 
-  /* Flip Class */
-  .flipped {
-    transform: rotateY(-180deg);
-  }
+  .flipped { transform: rotateY(-180deg); }
 
   /* Flower Animations */
   @keyframes fall {
@@ -124,7 +123,6 @@
   </div>
 
   <script>
-    // 1. Variables & Elements
     const pages = ["page-1", "page-2", "page-3"];
     let currentPage = 0;
     
@@ -133,25 +131,23 @@
     const cardContainer = document.getElementById("card-container");
     const shehnaiAudio = document.getElementById('shehnai');
 
-    // 2. Main Start Function
     async function startApp() {
-      // A. Initialize Tone.js (Browser requirement)
+      // Audio
+      if (shehnaiAudio) {
+        try {
+          shehnaiAudio.volume = 0.6;
+          await shehnaiAudio.play();
+        } catch (err) {
+          console.warn("Audio play failed:", err);
+        }
+      }
+      
+      // Tone.js context
       if (typeof Tone !== 'undefined') {
         await Tone.start();
       }
 
-      // B. Play Audio
-      if (shehnaiAudio) {
-        try {
-          shehnaiAudio.volume = 0.6; // Set volume (0.0 to 1.0)
-          await shehnaiAudio.play();
-          console.log("Audio playing successfully");
-        } catch (err) {
-          console.warn("Audio play failed (likely browser block):", err);
-        }
-      }
-
-      // C. Fade out Start Screen & Show Card
+      // UI Fade
       startScreen.style.opacity = 0;
       setTimeout(() => {
         startScreen.style.display = "none";
@@ -159,42 +155,30 @@
         cardContainer.style.pointerEvents = "auto";
       }, 500);
 
-      // D. Start Animations
       startFlowers();
     }
 
-    // 3. Page Flip Logic
     function flipPage() {
       if (currentPage >= pages.length) return;
-      const pageId = pages[currentPage];
-      const pageElement = document.getElementById(pageId);
-      
-      pageElement.classList.add("flipped");
+      document.getElementById(pages[currentPage]).classList.add("flipped");
       currentPage++;
     }
 
-    // 4. Flower Animation Logic
     function startFlowers() {
       setInterval(() => {
         const flower = document.createElement("div");
-        const isSmall = Math.random() > 0.5;
-        
         flower.classList.add("flower", Math.random() > 0.5 ? "orange" : "yellow");
-        if (isSmall) flower.classList.add("small");
-        
+        if (Math.random() > 0.5) flower.classList.add("small");
         flower.style.left = Math.random() * 100 + "vw";
         flower.style.animationDuration = 10 + Math.random() * 10 + "s";
-        
         document.body.appendChild(flower);
         setTimeout(() => flower.remove(), 20000);
       }, 1200);
     }
 
-    // 5. Event Listeners
     startButton.addEventListener("click", startApp);
     cardContainer.addEventListener("click", flipPage);
 
-    // 6. Asset Loading
     window.onload = () => {
       document.getElementById("page-1").style.backgroundImage = "url('Pg1.png')";
       document.getElementById("page-2").style.backgroundImage = "url('Pg2.png')";

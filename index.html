@@ -8,10 +8,6 @@
 <meta property="og:title" content="Wedding Invitation: Pragnya & Aneesh">
 <meta property="og:description" content="We invite you to celebrate our special day with us. Tap to open our musical invitation.">
 <meta property="og:image" content="https://pragnya98.github.io/pragnya-aneesh-wedding/Pg0.png">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="1576">
-<meta property="og:image:height" content="2319">
-<meta property="og:url" content="https://pragnya98.github.io/pragnya-aneesh-wedding/">
 <meta property="og:type" content="website">
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -32,9 +28,9 @@ body {
 
 /* --- Card Container --- */
 #card-container {
-  width: 100vw;          /* full width */
-  height: 100vh;         /* full viewport height */
-  max-width: 450px;      /* optional max width for big screens */
+  width: 100vw;          
+  height: 100vh;         
+  max-width: 450px;      
   position: relative;
   perspective: 1500px;
   opacity: 0; 
@@ -46,7 +42,7 @@ body {
 .page {
   position: absolute;
   inset: 0;
-  background-size: contain;  /* show whole image */
+  background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   transform-style: preserve-3d;
@@ -62,25 +58,37 @@ body {
 
 .flipped { transform: rotateY(-180deg); }
 
-/* Flower Animations */
-@keyframes fall {
-  0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; }
-  100% { transform: translateY(100vh) rotate(180deg); opacity: 0.3; }
+/* --- Arrow Styling (Bottom Right) --- */
+.tap-hint {
+    position: absolute;
+    /* Position at bottom right */
+    bottom: 30px; 
+    right: 30px;
+    
+    /* High Visibility Styling */
+    font-size: 3rem; /* Slightly smaller to fit corner */
+    color: white;
+    text-shadow: 0 4px 8px rgba(0,0,0,0.8); /* Strong shadow */
+    
+    pointer-events: none; /* Allows clicks to pass through */
+    z-index: 50;
+    
+    /* Simple Bounce Animation */
+    animation: bounce 2s infinite;
+    
+    /* Transition for the fade out */
+    transition: opacity 1s ease-out;
+    opacity: 1; /* Start VISIBLE */
 }
-.flower {
-  position: fixed;
-  top: 0;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  opacity: 0;
-  pointer-events: none;
-  animation: fall linear infinite;
-  z-index: 50;
+
+/* Helper to hide it */
+.fade-out {
+    opacity: 0 !important;
 }
-.flower.orange { background-color: #ff9900; }
-.flower.yellow { background-color: #ffcc00; }
-.flower.small { width: 8px; height: 8px; }
+
+.hidden-force {
+    display: none;
+}
 
 /* Start Screen */
 #start-screen {
@@ -113,9 +121,17 @@ body {
 </div>
 
 <div id="card-container">
-  <div id="page-1" class="page"></div>
-  <div id="page-2" class="page"></div>
+  
+  <div id="page-1" class="page">
+    <div id="hint-1" class="tap-hint">➜</div>
+  </div>
+
+  <div id="page-2" class="page">
+     <div id="hint-2" class="tap-hint hidden-force">➜</div>
+  </div>
+
   <div id="page-3" class="page"></div>
+
 </div>
 
 <script>
@@ -127,8 +143,12 @@ const startButton = document.getElementById("start-button");
 const cardContainer = document.getElementById("card-container");
 const shehnaiAudio = document.getElementById("shehnai");
 
+// TIMERS
+let hint1Timer;
+let hint2Timer;
+
 async function startApp() {
-  // Play Shehnai
+  // Play Audio
   if (shehnaiAudio) {
     try {
       shehnaiAudio.volume = 0.6;
@@ -138,16 +158,24 @@ async function startApp() {
     }
   }
 
-  // Tone.js
   if (typeof Tone !== 'undefined') {
-    await Tone.start();
+    try { await Tone.start(); } catch(e) {}
   }
 
+  // Hide Start Screen
   startScreen.style.opacity = 0;
   setTimeout(() => {
     startScreen.style.display = "none";
     cardContainer.style.opacity = 1;
     cardContainer.style.pointerEvents = "auto";
+    
+    // --- LOGIC FOR HINT 1 ---
+    // Start the 3 second timer as soon as the card is visible
+    const hint1 = document.getElementById("hint-1");
+    hint1Timer = setTimeout(() => {
+        hint1.classList.add("fade-out");
+    }, 3000); // 3 seconds
+    
   }, 500);
 
   startFlowers();
@@ -155,7 +183,34 @@ async function startApp() {
 
 function flipPage() {
   if (currentPage >= pages.length) return;
+  
+  // Perform Flip
   document.getElementById(pages[currentPage]).classList.add("flipped");
+  
+  // Handle Hints Logic
+  if (currentPage === 0) {
+      // We just flipped Page 1.
+      // 1. Hide Hint 1 immediately (in case user tapped before 3s)
+      document.getElementById("hint-1").style.display = "none";
+      clearTimeout(hint1Timer);
+
+      // 2. Show Hint 2 after slight delay (so it doesn't show while turning)
+      setTimeout(() => {
+          const hint2 = document.getElementById("hint-2");
+          hint2.classList.remove("hidden-force"); // Make it exist
+          
+          // Set timer to fade it out after 3s
+          hint2Timer = setTimeout(() => {
+             hint2.classList.add("fade-out");
+          }, 3000);
+      }, 600);
+  } else if (currentPage === 1) {
+      // We just flipped Page 2.
+      // Hide Hint 2 immediately
+      document.getElementById("hint-2").style.display = "none";
+      clearTimeout(hint2Timer);
+  }
+
   currentPage++;
 }
 

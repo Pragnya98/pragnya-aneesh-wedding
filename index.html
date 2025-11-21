@@ -32,9 +32,9 @@ body {
 
 /* --- Card Container --- */
 #card-container {
-  width: 100vw;          /* full width */
-  height: 100vh;         /* full viewport height */
-  max-width: 450px;      /* optional max width for big screens */
+  width: 100vw;           
+  height: 100vh;          
+  max-width: 450px;       
   position: relative;
   perspective: 1500px;
   opacity: 0; 
@@ -46,7 +46,7 @@ body {
 .page {
   position: absolute;
   inset: 0;
-  background-size: contain;  /* show whole image */
+  background-size: contain;  
   background-position: center;
   background-repeat: no-repeat;
   transform-style: preserve-3d;
@@ -56,13 +56,38 @@ body {
   border-radius: 10px;
 }
 
-/* Stacking order: Page 1 on top, then 2, then 3 */
 #page-1 { z-index: 3; }
 #page-2 { z-index: 2; }
 #page-3 { z-index: 1; }
 
-/* The Flip Class */
 .flipped { transform: rotateY(-180deg); }
+
+/* Tap Hint Button */
+.tap-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.85);
+  color: #111;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: none;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+/* Hide hint after flipping */
+.page.flipped .tap-hint {
+  display: none;
+}
 
 /* Flower Animations */
 @keyframes fall {
@@ -115,21 +140,13 @@ body {
 </div>
 
 <div id="card-container">
-  
+
   <div id="page-1" class="page">
-    <div class="absolute bottom-10 right-4 md:right-8 animate-bounce pointer-events-none z-10">
-        <span class="bg-black/50 backdrop-blur-sm text-white/90 px-4 py-2 rounded-full text-sm border border-white/20 shadow-lg flex items-center gap-2">
-           Tap to turn ➜
-        </span>
-    </div>
+    <div class="tap-hint">Tap to turn →</div>
   </div>
 
   <div id="page-2" class="page">
-    <div class="absolute bottom-10 right-4 md:right-8 animate-bounce pointer-events-none z-10">
-        <span class="bg-black/50 backdrop-blur-sm text-white/90 px-4 py-2 rounded-full text-sm border border-white/20 shadow-lg flex items-center gap-2">
-           Tap to turn ➜
-        </span>
-    </div>
+    <div class="tap-hint">Tap to turn →</div>
   </div>
 
   <div id="page-3" class="page"></div>
@@ -146,6 +163,7 @@ const cardContainer = document.getElementById("card-container");
 const shehnaiAudio = document.getElementById("shehnai");
 
 async function startApp() {
+
   // Play Shehnai
   if (shehnaiAudio) {
     try {
@@ -156,12 +174,11 @@ async function startApp() {
     }
   }
 
-  // Tone.js (Optional initialization)
+  // Tone.js
   if (typeof Tone !== 'undefined') {
     await Tone.start();
   }
 
-  // Hide Start Screen / Show Card
   startScreen.style.opacity = 0;
   setTimeout(() => {
     startScreen.style.display = "none";
@@ -182,23 +199,4 @@ function startFlowers() {
   setInterval(() => {
     const flower = document.createElement("div");
     flower.classList.add("flower", Math.random() > 0.5 ? "orange" : "yellow");
-    if (Math.random() > 0.5) flower.classList.add("small");
-    flower.style.left = Math.random() * 100 + "vw";
-    flower.style.animationDuration = 10 + Math.random() * 10 + "s";
-    document.body.appendChild(flower);
-    setTimeout(() => flower.remove(), 20000);
-  }, 1200);
-}
-
-startButton.addEventListener("click", startApp);
-cardContainer.addEventListener("click", flipPage);
-
-// Load images onto div backgrounds
-window.onload = () => {
-  document.getElementById("page-1").style.backgroundImage = "url('Pg1.png')";
-  document.getElementById("page-2").style.backgroundImage = "url('Pg2.png')";
-  document.getElementById("page-3").style.backgroundImage = "url('Pg3.png')";
-};
-</script>
-</body>
-</html>
+    if (Math

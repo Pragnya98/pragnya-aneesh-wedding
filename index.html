@@ -5,14 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pragnya & Aneesh Wedding Invitation</title>
 
+<!-- OG tags for WhatsApp preview -->
 <meta property="og:title" content="Wedding Invitation: Pragnya & Aneesh">
 <meta property="og:description" content="We invite you to celebrate our special day with us. Tap to open our musical invitation.">
-
 <meta property="og:image" content="https://pragnya98.github.io/pragnya-aneesh-wedding/Pg0.png">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200"> 
 <meta property="og:image:height" content="630">
-
 <meta property="og:url" content="https://pragnya98.github.io/pragnya-aneesh-wedding/">
 <meta property="og:type" content="website">
 
@@ -21,7 +20,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-  /* --- CSS STYLES --- */
   body {
     background-color: #0b1f13;
     font-family: 'Inter', sans-serif;
@@ -29,16 +27,16 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    overflow: hidden;
     margin: 0;
+    overflow: hidden;
   }
 
-  /* Card Container */
+  /* ⭐ Perfect aspect-ratio container (1576 × 2319) */
   #card-container {
-    width: 95vw;         /* Slightly wider for mobile */
-    max-width: 450px;    /* Maximum width */
-    height: 80vh;        /* Reduced height slightly to prevent "tall" distortion */
-    max-height: 700px;
+    width: 100vw;
+    height: calc(100vw * (2319 / 1576)); /* auto-scale height */
+    max-height: 100vh;
+    max-width: calc(100vh * (1576 / 2319)); /* prevent overflow */
     position: relative;
     perspective: 1500px;
     opacity: 0;
@@ -46,20 +44,17 @@
     transition: opacity 0.5s ease-in;
   }
 
-  /* Page Styling - FIXED TO PREVENT CUTTING */
+  /* Pages */
   .page {
     position: absolute;
     inset: 0;
-    /* "contain" ensures the WHOLE image is seen. No cropping. */
-    background-size: contain; 
+    background-size: contain;  /* ⭐ no cropping */
     background-position: center;
     background-repeat: no-repeat;
     transform-style: preserve-3d;
     transform-origin: left center;
     transition: transform 1s ease;
     backface-visibility: hidden;
-    /* Optional: Add a subtle shadow to the image itself */
-    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
   }
 
   #page-1 { z-index: 3; }
@@ -68,7 +63,7 @@
 
   .flipped { transform: rotateY(-180deg); }
 
-  /* Flower Animations */
+  /* Flowers */
   @keyframes fall {
     0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; }
     100% { transform: translateY(100vh) rotate(180deg); opacity: 0.3; }
@@ -79,16 +74,15 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    opacity: 0;
-    pointer-events: none;
     animation: fall linear infinite;
-    z-index: 50; 
+    pointer-events: none;
+    z-index: 50;
   }
   .flower.orange { background-color: #ff9900; }
   .flower.yellow { background-color: #ffcc00; }
   .flower.small { width: 8px; height: 8px; }
 
-  /* Start Screen Overlay */
+  /* Start Overlay */
   #start-screen {
     position: fixed;
     inset: 0;
@@ -105,85 +99,80 @@
 </head>
 <body>
 
-  <audio id="shehnai" src="shehnai.mp3" loop></audio>
+<!-- Shehnai audio -->
+<audio id="shehnai" src="shehnai.mp3" loop></audio>
 
-  <div id="start-screen">
-    <h1 class="text-4xl md:text-5xl text-yellow-500 font-['Playfair_Display'] italic mb-4">A Wedding Invitation</h1>
-    <p class="text-xl text-gray-200 mb-8">Pragnya & Aneesh</p>
-    <button id="start-button" class="bg-yellow-600 hover:bg-yellow-500 text-gray-900 font-bold text-xl py-4 px-8 rounded-full shadow-lg transition transform hover:scale-105 active:scale-95">
-      Tap to Open
-    </button>
-    <p class="text-xs text-gray-500 mt-4">(Includes music)</p>
-  </div>
+<div id="start-screen">
+  <h1 class="text-4xl md:text-5xl text-yellow-500 font-['Playfair_Display'] italic mb-4">A Wedding Invitation</h1>
+  <p class="text-xl text-gray-200 mb-8">Pragnya & Aneesh</p>
+  <button id="start-button" class="bg-yellow-600 hover:bg-yellow-500 text-gray-900 font-bold text-xl py-4 px-8 rounded-full shadow-lg transition">
+    Tap to Open
+  </button>
+  <p class="text-xs text-gray-500 mt-4">(Includes music)</p>
+</div>
 
-  <div id="card-container">
-    <div id="page-1" class="page"></div>
-    <div id="page-2" class="page"></div>
-    <div id="page-3" class="page"></div>
-  </div>
+<div id="card-container">
+  <div id="page-1" class="page"></div>
+  <div id="page-2" class="page"></div>
+  <div id="page-3" class="page"></div>
+</div>
 
-  <script>
-    const pages = ["page-1", "page-2", "page-3"];
-    let currentPage = 0;
-    
-    const startScreen = document.getElementById("start-screen");
-    const startButton = document.getElementById("start-button");
-    const cardContainer = document.getElementById("card-container");
-    const shehnaiAudio = document.getElementById('shehnai');
+<script>
+const pages = ["page-1", "page-2", "page-3"];
+let currentPage = 0;
 
-    async function startApp() {
-      // Audio
-      if (shehnaiAudio) {
-        try {
-          shehnaiAudio.volume = 0.6;
-          await shehnaiAudio.play();
-        } catch (err) {
-          console.warn("Audio play failed:", err);
-        }
-      }
-      
-      // Tone.js context
-      if (typeof Tone !== 'undefined') {
-        await Tone.start();
-      }
+const startScreen = document.getElementById("start-screen");
+const startButton = document.getElementById("start-button");
+const cardContainer = document.getElementById("card-container");
+const shehnai = document.getElementById("shehnai");
 
-      // UI Fade
-      startScreen.style.opacity = 0;
-      setTimeout(() => {
-        startScreen.style.display = "none";
-        cardContainer.style.opacity = 1;
-        cardContainer.style.pointerEvents = "auto";
-      }, 500);
+async function startApp() {
+  try {
+    shehnai.volume = 0.6;
+    await shehnai.play();
+  } catch (e) { console.warn("Music blocked:", e); }
 
-      startFlowers();
-    }
+  if (typeof Tone !== "undefined") {
+    await Tone.start();
+  }
 
-    function flipPage() {
-      if (currentPage >= pages.length) return;
-      document.getElementById(pages[currentPage]).classList.add("flipped");
-      currentPage++;
-    }
+  startScreen.style.opacity = 0;
+  setTimeout(() => {
+    startScreen.style.display = "none";
+    cardContainer.style.opacity = 1;
+    cardContainer.style.pointerEvents = "auto";
+  }, 500);
 
-    function startFlowers() {
-      setInterval(() => {
-        const flower = document.createElement("div");
-        flower.classList.add("flower", Math.random() > 0.5 ? "orange" : "yellow");
-        if (Math.random() > 0.5) flower.classList.add("small");
-        flower.style.left = Math.random() * 100 + "vw";
-        flower.style.animationDuration = 0 + Math.random() * 1 + "s";
-        document.body.appendChild(flower);
-        setTimeout(() => flower.remove(), 20000);
-      }, 1200);
-    }
+  startFlowers();
+}
 
-    startButton.addEventListener("click", startApp);
-    cardContainer.addEventListener("click", flipPage);
+function flipPage() {
+  if (currentPage >= pages.length) return;
+  document.getElementById(pages[currentPage]).classList.add("flipped");
+  currentPage++;
+}
 
-    window.onload = () => {
-      document.getElementById("page-1").style.backgroundImage = "url('Pg1.png')";
-      document.getElementById("page-2").style.backgroundImage = "url('Pg2.png')";
-      document.getElementById("page-3").style.backgroundImage = "url('Pg3.png')";
-    };
-  </script>
+function startFlowers() {
+  setInterval(() => {
+    const f = document.createElement("div");
+    f.classList.add("flower", Math.random() > 0.5 ? "orange" : "yellow");
+    if (Math.random() > 0.5) f.classList.add("small");
+    f.style.left = Math.random() * 100 + "vw";
+    f.style.animationDuration = 0 + Math.random() * 1 + "s";
+    document.body.appendChild(f);
+    setTimeout(() => f.remove(), 20000);
+  }, 1200);
+}
+
+startButton.addEventListener("click", startApp);
+cardContainer.addEventListener("click", flipPage);
+
+window.onload = () => {
+  document.getElementById("page-1").style.backgroundImage = "url('Pg1.png')";
+  document.getElementById("page-2").style.backgroundImage = "url('Pg2.png')";
+  document.getElementById("page-3").style.backgroundImage = "url('Pg3.png')";
+};
+</script>
+
 </body>
 </html>

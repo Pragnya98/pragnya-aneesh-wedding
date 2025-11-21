@@ -170,7 +170,7 @@
         flower.classList.add("flower", Math.random() > 0.5 ? "orange" : "yellow");
         if (Math.random() > 0.5) flower.classList.add("small");
         flower.style.left = Math.random() * 100 + "vw";
-        flower.style.animationDuration = 1 + Math.random() * 1 + "s";
+        flower.style.animationDuration = 0 + Math.random() * 1 + "s";
         document.body.appendChild(flower);
         setTimeout(() => flower.remove(), 20000);
       }, 1200);

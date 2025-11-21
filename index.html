@@ -32,13 +32,12 @@ body {
 
 /* --- Card Container --- */
 #card-container {
-  width: 95vw;               /* almost full width on mobile */
-  max-width: 450px;
-  aspect-ratio: 1576 / 2319; /* MATCH IMAGE PORTRAIT RATIO */
+  width: 100vw;          /* full width */
+  height: 100vh;         /* full viewport height */
+  max-width: 450px;      /* optional max width for big screens */
   position: relative;
-  margin: 0 auto;
   perspective: 1500px;
-  opacity: 0; /* hidden until start */
+  opacity: 0; 
   pointer-events: none;
   transition: opacity 0.5s ease-in;
 }
@@ -47,7 +46,7 @@ body {
 .page {
   position: absolute;
   inset: 0;
-  background-size: contain; /* prevents cutting */
+  background-size: contain;  /* show whole image */
   background-position: center;
   background-repeat: no-repeat;
   transform-style: preserve-3d;
@@ -55,7 +54,6 @@ body {
   transition: transform 1s ease;
   backface-visibility: hidden;
   border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
 #page-1 { z-index: 3; }
@@ -64,7 +62,7 @@ body {
 
 .flipped { transform: rotateY(-180deg); }
 
-/* --- Flower Animation --- */
+/* Flower Animations */
 @keyframes fall {
   0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; }
   100% { transform: translateY(100vh) rotate(180deg); opacity: 0.3; }
@@ -84,7 +82,7 @@ body {
 .flower.yellow { background-color: #ffcc00; }
 .flower.small { width: 8px; height: 8px; }
 
-/* --- Start Screen --- */
+/* Start Screen */
 #start-screen {
   position: fixed;
   inset: 0;
@@ -140,12 +138,11 @@ async function startApp() {
     }
   }
 
-  // Tone.js context
+  // Tone.js
   if (typeof Tone !== 'undefined') {
     await Tone.start();
   }
 
-  // Fade Start Screen
   startScreen.style.opacity = 0;
   setTimeout(() => {
     startScreen.style.display = "none";

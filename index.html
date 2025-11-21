@@ -58,74 +58,37 @@ body {
 
 .flipped { transform: rotateY(-180deg); }
 
-/* --- Arrow Animation & Styling --- */
-.center-hint {
+/* --- Arrow Styling --- */
+.tap-hint {
     position: absolute;
     top: 50%;
     left: 50%;
-    /* This TranslateZ is CRITICAL for 3D visibility */
-    transform: translate(-50%, -50%) translateZ(30px); 
+    transform: translate(-50%, -50%);
     
-    /* Style */
-    width: 80px;
-    height: 80px;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
+    /* High Visibility Styling */
+    font-size: 4rem;
     color: white;
-    font-size: 2.5rem;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    text-shadow: 0 4px 8px rgba(0,0,0,0.8); /* Strong shadow to see on any background */
     
-    pointer-events: none; /* Click passes through */
-    z-index: 100;
-    opacity: 0; /* Start hidden */
+    pointer-events: none; /* Allows clicks to pass through */
+    z-index: 50;
+    
+    /* Simple Bounce Animation */
+    animation: bounce 2s infinite;
+    
+    /* Transition for the fade out */
+    transition: opacity 1s ease-out;
+    opacity: 1; /* Start VISIBLE */
 }
 
-/* Animation for Page 1 (Runs automatically) */
-.animate-hint-immediate {
-    animation: hintPulseFade 4s ease-out forwards;
-    animation-delay: 0.5s; /* Wait for app to fade in */
+/* Helper to hide it */
+.fade-out {
+    opacity: 0 !important;
 }
 
-/* Animation for Page 2 (Runs when class added) */
-.animate-hint-trigger {
-    animation: hintPulseFade 4s ease-out forwards;
+.hidden-force {
+    display: none;
 }
-
-@keyframes hintPulseFade {
-    0% { opacity: 0; transform: translate(-50%, -50%) translateZ(30px) scale(0.8); }
-    10% { opacity: 1; transform: translate(-50%, -50%) translateZ(30px) scale(1.1); }
-    20% { transform: translate(-50%, -50%) translateZ(30px) scale(1); }
-    30% { transform: translate(-50%, -50%) translateZ(30px) scale(1.1); }
-    40% { transform: translate(-50%, -50%) translateZ(30px) scale(1); }
-    70% { opacity: 1; }
-    100% { opacity: 0; transform: translate(-50%, -50%) translateZ(30px) scale(1); }
-}
-
-/* Flower Animations */
-@keyframes fall {
-  0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; }
-  100% { transform: translateY(100vh) rotate(180deg); opacity: 0.3; }
-}
-.flower {
-  position: fixed;
-  top: 0;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  opacity: 0;
-  pointer-events: none;
-  animation: fall linear infinite;
-  z-index: 50;
-}
-.flower.orange { background-color: #ff9900; }
-.flower.yellow { background-color: #ffcc00; }
-.flower.small { width: 8px; height: 8px; }
 
 /* Start Screen */
 #start-screen {
@@ -160,11 +123,11 @@ body {
 <div id="card-container">
   
   <div id="page-1" class="page">
-    <div id="hint-1" class="center-hint animate-hint-immediate">➜</div>
+    <div id="hint-1" class="tap-hint">➜</div>
   </div>
 
   <div id="page-2" class="page">
-     <div id="hint-2" class="center-hint">➜</div>
+     <div id="hint-2" class="tap-hint hidden-force">➜</div>
   </div>
 
   <div id="page-3" class="page"></div>
@@ -180,6 +143,10 @@ const startButton = document.getElementById("start-button");
 const cardContainer = document.getElementById("card-container");
 const shehnaiAudio = document.getElementById("shehnai");
 
+// TIMERS
+let hint1Timer;
+let hint2Timer;
+
 async function startApp() {
   // Play Audio
   if (shehnaiAudio) {
@@ -191,9 +158,8 @@ async function startApp() {
     }
   }
 
-  // Tone.js
   if (typeof Tone !== 'undefined') {
-      try { await Tone.start(); } catch(e) { console.log(e); }
+    try { await Tone.start(); } catch(e) {}
   }
 
   // Hide Start Screen
@@ -202,7 +168,14 @@ async function startApp() {
     startScreen.style.display = "none";
     cardContainer.style.opacity = 1;
     cardContainer.style.pointerEvents = "auto";
-    // Note: Hint 1 runs via CSS automatically
+    
+    // --- LOGIC FOR HINT 1 ---
+    // Start the 3 second timer as soon as the card is visible
+    const hint1 = document.getElementById("hint-1");
+    hint1Timer = setTimeout(() => {
+        hint1.classList.add("fade-out");
+    }, 3000); // 3 seconds
+    
   }, 500);
 
   startFlowers();
@@ -211,18 +184,31 @@ async function startApp() {
 function flipPage() {
   if (currentPage >= pages.length) return;
   
+  // Perform Flip
   document.getElementById(pages[currentPage]).classList.add("flipped");
   
-  // TRIGGER PAGE 2 HINT (Only when flipping from Page 1 to 2)
+  // Handle Hints Logic
   if (currentPage === 0) {
-      // Wait 800ms for page flip animation to settle, then show hint
+      // We just flipped Page 1.
+      // 1. Hide Hint 1 immediately (in case user tapped before 3s)
+      document.getElementById("hint-1").style.display = "none";
+      clearTimeout(hint1Timer);
+
+      // 2. Show Hint 2 after slight delay (so it doesn't show while turning)
       setTimeout(() => {
           const hint2 = document.getElementById("hint-2");
-          // Reset animation if needed (hack for replay)
-          hint2.classList.remove("animate-hint-trigger");
-          void hint2.offsetWidth; // trigger reflow
-          hint2.classList.add("animate-hint-trigger");
-      }, 800);
+          hint2.classList.remove("hidden-force"); // Make it exist
+          
+          // Set timer to fade it out after 3s
+          hint2Timer = setTimeout(() => {
+             hint2.classList.add("fade-out");
+          }, 3000);
+      }, 600);
+  } else if (currentPage === 1) {
+      // We just flipped Page 2.
+      // Hide Hint 2 immediately
+      document.getElementById("hint-2").style.display = "none";
+      clearTimeout(hint2Timer);
   }
 
   currentPage++;

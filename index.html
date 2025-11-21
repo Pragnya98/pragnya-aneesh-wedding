@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Pragnya & Aneesh Wedding Invitation</title>
 
 <meta property="og:title" content="Wedding Invitation: Pragnya & Aneesh">
@@ -22,6 +22,8 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  /* Use dvh for mobile browser bar handling */
+  min-height: 100dvh; 
   overflow: hidden;
   margin: 0;
 }
@@ -29,7 +31,8 @@ body {
 /* --- Card Container --- */
 #card-container {
   width: 100vw;          
-  height: 100vh;         
+  height: 100vh;    
+  height: 100dvh; /* Fixes sizing on mobile with address bars */     
   max-width: 450px;      
   position: relative;
   perspective: 1500px;
@@ -58,27 +61,35 @@ body {
 
 .flipped { transform: rotateY(-180deg); }
 
-/* --- Arrow Styling (Bottom Right) --- */
+/* --- Arrow Styling --- */
 .tap-hint {
     position: absolute;
-    /* Position at bottom right */
+    /* Default (Desktop) Position */
     bottom: 30px; 
     right: 30px;
     
-    /* High Visibility Styling */
-    font-size: 3rem; /* Slightly smaller to fit corner */
+    /* Styling */
+    font-size: 3rem; 
     color: white;
-    text-shadow: 0 4px 8px rgba(0,0,0,0.8); /* Strong shadow */
+    text-shadow: 0 4px 10px rgba(0,0,0,0.9); /* Strong shadow for visibility */
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
     
-    pointer-events: none; /* Allows clicks to pass through */
+    pointer-events: none;
     z-index: 50;
     
-    /* Simple Bounce Animation */
     animation: bounce 2s infinite;
-    
-    /* Transition for the fade out */
     transition: opacity 1s ease-out;
-    opacity: 1; /* Start VISIBLE */
+    opacity: 1; 
+}
+
+/* --- MOBILE SPECIFIC FIX --- */
+@media (max-width: 768px) {
+  .tap-hint {
+      /* Move UP significantly on phones to avoid address bar/home indicator */
+      bottom: 130px; 
+      right: 20px;
+      font-size: 2.5rem; /* Slightly smaller on phone */
+  }
 }
 
 /* Helper to hide it */
@@ -170,11 +181,10 @@ async function startApp() {
     cardContainer.style.pointerEvents = "auto";
     
     // --- LOGIC FOR HINT 1 ---
-    // Start the 3 second timer as soon as the card is visible
     const hint1 = document.getElementById("hint-1");
     hint1Timer = setTimeout(() => {
         hint1.classList.add("fade-out");
-    }, 3000); // 3 seconds
+    }, 3000); 
     
   }, 500);
 
@@ -189,24 +199,18 @@ function flipPage() {
   
   // Handle Hints Logic
   if (currentPage === 0) {
-      // We just flipped Page 1.
-      // 1. Hide Hint 1 immediately (in case user tapped before 3s)
       document.getElementById("hint-1").style.display = "none";
       clearTimeout(hint1Timer);
 
-      // 2. Show Hint 2 after slight delay (so it doesn't show while turning)
       setTimeout(() => {
           const hint2 = document.getElementById("hint-2");
-          hint2.classList.remove("hidden-force"); // Make it exist
+          hint2.classList.remove("hidden-force");
           
-          // Set timer to fade it out after 3s
           hint2Timer = setTimeout(() => {
              hint2.classList.add("fade-out");
           }, 3000);
       }, 600);
   } else if (currentPage === 1) {
-      // We just flipped Page 2.
-      // Hide Hint 2 immediately
       document.getElementById("hint-2").style.display = "none";
       clearTimeout(hint2Timer);
   }

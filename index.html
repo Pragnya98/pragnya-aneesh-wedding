@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pragnya & Aneesh Wedding Invitation</title>
+
+<meta property="og:title" content="Wedding Invitation: Pragnya & Aneesh">
+
+<meta property="og:description" content="We invite you to celebrate our special day with us. Tap to open our musical invitation.">
+
+<meta property="og:image" content="Pg1.png">
+
+<meta property="og:url" content="https://github.com">
+<meta property="og:type" content="website">
+
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
@@ -159,10 +169,7 @@
       const pageId = pages[currentPage];
       const pageElement = document.getElementById(pageId);
       
-      // Add flip class
       pageElement.classList.add("flipped");
-      
-      // Optional: Add a little depth shadow logic or sound effect here if desired
       currentPage++;
     }
 
@@ -175,16 +182,12 @@
         flower.classList.add("flower", Math.random() > 0.5 ? "orange" : "yellow");
         if (isSmall) flower.classList.add("small");
         
-        // Random horizontal position
         flower.style.left = Math.random() * 100 + "vw";
-        // Random fall speed (between 10s and 20s)
         flower.style.animationDuration = 10 + Math.random() * 10 + "s";
         
         document.body.appendChild(flower);
-        
-        // Cleanup flower after animation ends to prevent memory leaks
         setTimeout(() => flower.remove(), 20000);
-      }, 1200); // Create a new flower every 1.2 seconds
+      }, 1200);
     }
 
     // 5. Event Listeners
@@ -193,7 +196,6 @@
 
     // 6. Asset Loading
     window.onload = () => {
-      // Ensure your images are named exactly like this in the folder
       document.getElementById("page-1").style.backgroundImage = "url('Pg1.png')";
       document.getElementById("page-2").style.backgroundImage = "url('Pg2.png')";
       document.getElementById("page-3").style.backgroundImage = "url('Pg3.png')";

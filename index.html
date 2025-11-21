@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pragnya & Aneesh Wedding Invitation</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  /* --- CSS STYLES --- */
+  body {
+    background-color: #0b1f13;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    margin: 0;
+  }
+
+  /* Card Container & Perspective */
+  #card-container {
+    width: 90vw;
+    max-width: 400px;
+    height: 90vh;
+    max-height: 650px;
+    position: relative;
+    perspective: 1500px;
+    opacity: 0; /* Hidden until start */
+    pointer-events: none;
+    transition: opacity 0.5s ease-in;
+  }
+
+  /* Page Styling */
+  .page {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transform-style: preserve-3d;
+    transform-origin: left center;
+    transition: transform 1s ease;
+    backface-visibility: hidden; /* Hides the back when flipped */
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  /* Page Layering */
+  #page-1 { z-index: 3; }
+  #page-2 { z-index: 2; }
+  #page-3 { z-index: 1; }
+
+  /* Flip Class */
+  .flipped {
+    transform: rotateY(-180deg);
+  }
+
+  /* Flower Animations */
+  @keyframes fall {
+    0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; }
+    100% { transform: translateY(100vh) rotate(180deg); opacity: 0.3; }
+  }
+  .flower {
+    position: fixed;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    animation: fall linear infinite;
+    z-index: 50; 
+  }
+  .flower.orange { background-color: #ff9900; }
+  .flower.yellow { background-color: #ffcc00; }
+  .flower.small { width: 8px; height: 8px; }
+
+  /* Start Screen Overlay */
+  #start-screen {
+    position: fixed;
+    inset: 0;
+    background-color: #0b1f13;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: opacity 0.5s ease-out;
+  }
+</style>
+</head>
+<body>
+
+  <audio id="shehnai" src="shehnai.mp3" loop></audio>
+
+  <div id="start-screen">
+    <h1 class="text-4xl md:text-5xl text-yellow-500 font-['Playfair_Display'] italic mb-4">A Wedding Invitation</h1>
+    <p class="text-xl text-gray-200 mb-8">Pragnya & Aneesh</p>
+    <button id="start-button" class="bg-yellow-600 hover:bg-yellow-500 text-gray-900 font-bold text-xl py-4 px-8 rounded-full shadow-lg transition transform hover:scale-105 active:scale-95">
+      Tap to Open
+    </button>
+    <p class="text-xs text-gray-500 mt-4">(Includes music)</p>
+  </div>
+
+  <div id="card-container">
+    <div id="page-1" class="page"></div>
+    <div id="page-2" class="page"></div>
+    <div id="page-3" class="page"></div>
+  </div>
+
+  <script>
+    // 1. Variables & Elements
+    const pages = ["page-1", "page-2", "page-3"];
+    let currentPage = 0;
+    
+    const startScreen = document.getElementById("start-screen");
+    const startButton = document.getElementById("start-button");
+    const cardContainer = document.getElementById("card-container");
+    const shehnaiAudio = document.getElementById('shehnai');
+
+    // 2. Main Start Function
+    async function startApp() {
+      // A. Initialize Tone.js (Browser requirement)
+      if (typeof Tone !== 'undefined') {
+        await Tone.start();
+      }
+
+      // B. Play Audio
+      if (shehnaiAudio) {
+        try {
+          shehnaiAudio.volume = 0.6; // Set volume (0.0 to 1.0)
+          await shehnaiAudio.play();
+          console.log("Audio playing successfully");
+        } catch (err) {
+          console.warn("Audio play failed (likely browser block):", err);
+        }
+      }
+
+      // C. Fade out Start Screen & Show Card
+      startScreen.style.opacity = 0;
+      setTimeout(() => {
+        startScreen.style.display = "none";
+        cardContainer.style.opacity = 1;
+        cardContainer.style.pointerEvents = "auto";
+      }, 500);
+
+      // D. Start Animations
+      startFlowers();
+    }
+
+    // 3. Page Flip Logic
+    function flipPage() {
+      if (currentPage >= pages.length) return;
+      const pageId = pages[currentPage];
+      const pageElement = document.getElementById(pageId);
+      
+      // Add flip class
+      pageElement.classList.add("flipped");
+      
+      // Optional: Add a little depth shadow logic or sound effect here if desired
+      currentPage++;
+    }
+
+    // 4. Flower Animation Logic
+    function startFlowers() {
+      setInterval(() => {
+        const flower = document.createElement("div");
+        const isSmall = Math.random() > 0.5;
+        
+        flower.classList.add("flower", Math.random() > 0.5 ? "orange" : "yellow");
+        if (isSmall) flower.classList.add("small");
+        
+        // Random horizontal position
+        flower.style.left = Math.random() * 100 + "vw";
+        // Random fall speed (between 10s and 20s)
+        flower.style.animationDuration = 10 + Math.random() * 10 + "s";
+        
+        document.body.appendChild(flower);
+        
+        // Cleanup flower after animation ends to prevent memory leaks
+        setTimeout(() => flower.remove(), 20000);
+      }, 1200); // Create a new flower every 1.2 seconds
+    }
+
+    // 5. Event Listeners
+    startButton.addEventListener("click", startApp);
+    cardContainer.addEventListener("click", flipPage);
+
+    // 6. Asset Loading
+    window.onload = () => {
+      // Ensure your images are named exactly like this in the folder
+      document.getElementById("page-1").style.backgroundImage = "url('Pg1.png')";
+      document.getElementById("page-2").style.backgroundImage = "url('Pg2.png')";
+      document.getElementById("page-3").style.backgroundImage = "url('Pg3.png')";
+    };
+  </script>
+</body>
+</html>

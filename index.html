@@ -32,12 +32,12 @@ body {
 
 /* --- Card Container --- */
 #card-container {
-  width: 100vw;           
-  height: 100vh;          
-  max-width: 450px;       
+  width: 100vw;
+  height: 100vh;
+  max-width: 450px;
   position: relative;
   perspective: 1500px;
-  opacity: 0; 
+  opacity: 0;
   pointer-events: none;
   transition: opacity 0.5s ease-in;
 }
@@ -46,7 +46,7 @@ body {
 .page {
   position: absolute;
   inset: 0;
-  background-size: contain;  
+  background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   transform-style: preserve-3d;
@@ -62,31 +62,32 @@ body {
 
 .flipped { transform: rotateY(-180deg); }
 
-/* Tap Hint Button */
-.tap-hint {
+/* =============================
+   BOTTOM-RIGHT ARROW INDICATOR
+   ============================= */
+.arrow-hint {
   position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.85);
-  color: #111;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 600;
-  pointer-events: none;
-  animation: pulse 1.5s infinite ease-in-out;
+  bottom: 22px;
+  right: 22px;
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-top: 12px solid white;   /* arrow color */
+  opacity: 0.9;
+  transform: rotate(45deg);
+  animation: arrowBounce 1.2s infinite ease-in-out;
+  transition: opacity 0.6s ease-out;
+  z-index: 20;
 }
 
-@keyframes pulse {
-  0% { opacity: 0.5; }
-  50% { opacity: 1; }
-  100% { opacity: 0.5; }
+@keyframes arrowBounce {
+  0%   { transform: translateY(0) rotate(45deg); }
+  50%  { transform: translateY(-6px) rotate(45deg); }
+  100% { transform: translateY(0) rotate(45deg); }
 }
 
-/* Hide hint after flipping */
-.page.flipped .tap-hint {
-  display: none;
+.fade-out {
+  opacity: 0 !important;
 }
 
 /* Flower Animations */
@@ -142,11 +143,11 @@ body {
 <div id="card-container">
 
   <div id="page-1" class="page">
-    <div class="tap-hint">Tap to turn →</div>
+    <div class="arrow-hint" id="arrow-1"></div>
   </div>
 
   <div id="page-2" class="page">
-    <div class="tap-hint">Tap to turn →</div>
+    <div class="arrow-hint" id="arrow-2"></div>
   </div>
 
   <div id="page-3" class="page"></div>
@@ -163,8 +164,6 @@ const cardContainer = document.getElementById("card-container");
 const shehnaiAudio = document.getElementById("shehnai");
 
 async function startApp() {
-
-  // Play Shehnai
   if (shehnaiAudio) {
     try {
       shehnaiAudio.volume = 0.6;
@@ -174,7 +173,6 @@ async function startApp() {
     }
   }
 
-  // Tone.js
   if (typeof Tone !== 'undefined') {
     await Tone.start();
   }
@@ -199,4 +197,28 @@ function startFlowers() {
   setInterval(() => {
     const flower = document.createElement("div");
     flower.classList.add("flower", Math.random() > 0.5 ? "orange" : "yellow");
-    if (Math
+    if (Math.random() > 0.5) flower.classList.add("small");
+    flower.style.left = Math.random() * 100 + "vw";
+    flower.style.animationDuration = 10 + Math.random() * 10 + "s";
+    document.body.appendChild(flower);
+    setTimeout(() => flower.remove(), 20000);
+  }, 1200);
+}
+
+startButton.addEventListener("click", startApp);
+cardContainer.addEventListener("click", flipPage);
+
+window.onload = () => {
+  document.getElementById("page-1").style.backgroundImage = "url('Pg1.png')";
+  document.getElementById("page-2").style.backgroundImage = "url('Pg2.png')";
+  document.getElementById("page-3").style.backgroundImage = "url('Pg3.png')";
+
+  // Fade arrow after 3 seconds
+  setTimeout(() => {
+    document.getElementById("arrow-1").classList.add("fade-out");
+    document.getElementById("arrow-2").classList.add("fade-out");
+  }, 3000);
+};
+</script>
+</body>
+</html>

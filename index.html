@@ -6,7 +6,6 @@
 <title>Pragnya & Aneesh Wedding Invitation</title>
 
 <meta property="og:title" content="Wedding Invitation: Pragnya & Aneesh">
-
 <meta property="og:description" content="We invite you to celebrate our special day with us. Tap to open our musical invitation.">
 
 <meta property="og:image" content="https://pragnya98.github.io/pragnya-aneesh-wedding/Pg0.png">
@@ -36,30 +35,31 @@
 
   /* Card Container */
   #card-container {
-    width: 90vw;
-    max-width: 400px;
-    height: 90vh;
-    max-height: 650px;
+    width: 95vw;         /* Slightly wider for mobile */
+    max-width: 450px;    /* Maximum width */
+    height: 80vh;        /* Reduced height slightly to prevent "tall" distortion */
+    max-height: 700px;
     position: relative;
     perspective: 1500px;
-    opacity: 0; /* Hidden until start */
+    opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease-in;
   }
 
-  /* Page Styling */
+  /* Page Styling - FIXED TO PREVENT CUTTING */
   .page {
     position: absolute;
     inset: 0;
-    background-size: cover;
+    /* "contain" ensures the WHOLE image is seen. No cropping. */
+    background-size: contain; 
     background-position: center;
     background-repeat: no-repeat;
     transform-style: preserve-3d;
     transform-origin: left center;
     transition: transform 1s ease;
     backface-visibility: hidden;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    /* Optional: Add a subtle shadow to the image itself */
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
   }
 
   #page-1 { z-index: 3; }

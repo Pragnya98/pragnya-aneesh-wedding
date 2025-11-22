@@ -22,7 +22,6 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  /* Use dvh for mobile browser bar handling */
   min-height: 100dvh; 
   overflow: hidden;
   margin: 0;
@@ -32,7 +31,7 @@ body {
 #card-container {
   width: 100vw;          
   height: 100vh;    
-  height: 100dvh; /* Fixes sizing on mobile with address bars */     
+  height: 100dvh;     
   max-width: 450px;      
   position: relative;
   perspective: 1500px;
@@ -64,14 +63,12 @@ body {
 /* --- Arrow Styling --- */
 .tap-hint {
     position: absolute;
-    /* Default (Desktop) Position */
     bottom: 30px; 
     right: 30px;
     
-    /* Styling */
     font-size: 3rem; 
     color: white;
-    text-shadow: 0 4px 10px rgba(0,0,0,0.9); /* Strong shadow for visibility */
+    text-shadow: 0 4px 10px rgba(0,0,0,0.9);
     filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
     
     pointer-events: none;
@@ -85,21 +82,36 @@ body {
 /* --- MOBILE SPECIFIC FIX --- */
 @media (max-width: 768px) {
   .tap-hint {
-      /* Move UP significantly on phones to avoid address bar/home indicator */
       bottom: 130px; 
       right: 20px;
-      font-size: 2.5rem; /* Slightly smaller on phone */
+      font-size: 2.5rem; 
   }
 }
 
-/* Helper to hide it */
-.fade-out {
-    opacity: 0 !important;
+.fade-out { opacity: 0 !important; }
+.hidden-force { display: none; }
+
+/* --- FLOWER ANIMATION FIX --- */
+@keyframes fall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 0.8; }
+  100% { transform: translateY(100vh) rotate(180deg); opacity: 0.3; }
 }
 
-.hidden-force {
-    display: none;
+.flower {
+  position: fixed;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  opacity: 0; /* Starts hidden, animation makes it visible */
+  pointer-events: none;
+  /* ADDED '10s' below to make the CSS valid. JS will still randomize it. */
+  animation: fall 10s linear infinite; 
+  z-index: 50;
 }
+.flower.orange { background-color: #ff9900; }
+.flower.yellow { background-color: #ffcc00; }
+.flower.small { width: 8px; height: 8px; }
 
 /* Start Screen */
 #start-screen {
@@ -223,9 +235,16 @@ function startFlowers() {
     const flower = document.createElement("div");
     flower.classList.add("flower", Math.random() > 0.5 ? "orange" : "yellow");
     if (Math.random() > 0.5) flower.classList.add("small");
+    
+    // Randomize position
     flower.style.left = Math.random() * 100 + "vw";
+    
+    // Randomize duration (this overrides the CSS 10s)
     flower.style.animationDuration = 10 + Math.random() * 10 + "s";
+    
     document.body.appendChild(flower);
+    
+    // Cleanup after 20s
     setTimeout(() => flower.remove(), 20000);
   }, 1200);
 }
